@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eef3f4">
+  <title>스타터 포지 · 랜덤 스타팅 메이커</title>
+  <style>/* FONT_STYLES */
+/* APP_STYLES */</style>
+</head>
+<body>
+  <a class="skip" href="#workspace">결과로 건너뛰기</a>
+  <aside id="sidebar" class="sidebar" aria-label="스타팅 생성 설정">
+    <a class="brand" href="#" aria-label="스타터 포지 생성 화면">
+      <svg viewBox="0 0 30 30" width="30" height="30" aria-hidden="true"><path d="M3 23V11h4v12zm7 0V4h4v19zm7 0V15h4v8zm7 0V8h4v15z" fill="currentColor"/></svg>
+      <span>Starter Forge<small>나만의 스타팅 연구소</small></span>
+    </a>
+    <button class="mobile-close plain" id="close-settings" type="button" aria-label="설정 닫기">닫기 ×</button>
+    <form id="generator-form">
+      <h2>스타팅 생성</h2>
+      <p class="muted sidebar-intro">171가지 타입 조합에서<br>다음 모험의 시작을 뽑아보세요.</p>
+      <button id="randomize" class="primary wide" type="button"><span aria-hidden="true">↻</span> 새 스타팅 뽑기</button>
+      <label for="seed">재현 시드</label>
+      <input id="seed" name="seed" value="starter-530" maxlength="120" autocomplete="off" spellcheck="false" required aria-describedby="seed-help">
+      <p id="seed-help" class="hint">같은 시드와 범위는 같은 결과를 만듭니다.</p>
+      <div class="button-pair"><button type="submit">시드로 생성</button><button id="step-start" type="button">한 단계씩</button></div>
+      <details class="range-settings" open>
+        <summary>능력치별 분포 설정</summary>
+        <div id="profile-settings"></div>
+        <p class="hint">HP·방어·특방: 아래 집중·위 평탄.<br>공격·특공 c=0.5, 스피드 c=0.85.</p>
+      </details>
+      <details class="range-settings">
+        <summary>추가 공통 제한</summary>
+        <div class="range-inputs"><label for="stat-min">최소<input id="stat-min" type="number" min="1" max="255" step="1" value="1" required></label><span>–</span><label for="stat-max">최대<input id="stat-max" type="number" min="1" max="255" step="1" value="255" required></label></div>
+        <p class="hint">각 능력치의 지정 범위와 겹치는 부분만 사용합니다. 기본값은 추가 제한이 없습니다.</p>
+      </details>
+      <p id="form-error" class="error" role="alert" hidden></p>
+    </form>
+    <div class="sidebar-notes"><span class="status-dot" aria-hidden="true"></span> 로컬에서 바로 실행<p>고정 수식으로 형태를 판정하고<br>시드 난수로 기술을 배정합니다.</p><button id="sidebar-rules" class="text-button" type="button">생성 규칙 살펴보기 <span aria-hidden="true">↗</span></button></div>
+  </aside>
+  <button id="scrim" class="scrim" type="button" aria-label="설정 닫기" hidden></button>
+  <div class="main-shell">
+    <header class="topbar"><div><button id="open-settings" class="mobile-menu" type="button" aria-controls="sidebar" aria-expanded="false">생성 설정</button><span class="breadcrumb">연구소 <span>/</span> 랜덤 스타팅</span></div><span class="version">규칙 v1.4 <span class="status-dot" aria-hidden="true"></span></span></header>
+    <main id="workspace" class="sheet" tabindex="-1">
+      <div class="page-title"><div><h1>스타팅 메이커</h1><p class="muted">타입부터 전용기까지, 한 번의 추첨으로.</p></div><button id="export" type="button">JSON 저장 <span aria-hidden="true">↓</span></button></div>
+      <nav class="tabs" aria-label="연구소 화면"><button type="button" id="tab-starter" class="tab active" aria-current="page" data-view="starter">스타팅</button><button type="button" id="tab-training" class="tab" data-view="training">실전 설정</button><button type="button" id="tab-rules" class="tab" data-view="rules">생성 규칙</button><button type="button" id="tab-library" class="tab" data-view="library">특성·기술 도감</button></nav>
+      <div id="view-starter" class="view">
+        <div id="result-heading"></div>
+        <div id="step-controls" class="step-controls" hidden><p id="step-message" aria-live="polite"></p><div><button id="step-next" class="primary" type="button">다음 능력치 뽑기</button><button id="step-finish" type="button">남은 추첨 완료</button></div></div>
+        <div class="overview-grid"><section class="stats-panel panel" aria-labelledby="stats-heading"><div class="section-title"><h2 id="stats-heading">종족값 분배</h2><p id="total-display" class="total"></p></div><div id="stats"></div><div class="stat-axis"><span>0</span><span>종족값 · 공통 눈금</span><span>160</span></div></section><div id="identity"></div></div>
+        <section class="moves-section" aria-labelledby="moves-heading"><div class="section-title"><h2 id="moves-heading">전용기 구성</h2><span id="move-note" class="muted small">형태에 맞춘 4개의 기술</span></div><div id="moves" class="moves-grid"></div></section>
+        <section class="environment-section" aria-labelledby="environment-heading"><div class="section-title"><h2 id="environment-heading">전장과 시너지</h2><span class="muted small">원작·창작 전장 효과</span></div><div id="environment"></div></section>
+        <details class="trace"><summary>추첨 기록 확인 <span id="trace-summary" class="muted small"></span></summary><div id="allocation"></div></details>
+      </div>
+      <div id="view-training" class="view" hidden></div>
+      <div id="view-rules" class="view" hidden></div>
+      <div id="view-library" class="view" hidden>
+        <div class="view-heading"><h2>특성·전용기 도감</h2><p class="muted">창작·타입 확장·원작 기반을 구분했습니다. 같은 효과의 변화기는 통합했습니다.</p></div>
+        <div class="library-controls"><label for="library-kind">항목<select id="library-kind"><option value="abilities">특성</option><option value="moves">전용기</option><option value="environments">전장 효과</option></select></label><label for="library-type">타입<select id="library-type"><option value="all">모든 타입</option></select></label><label for="library-search" class="search-label">이름·효과 검색<input id="library-search" type="search" placeholder="스킨, 연타, 회복…"></label></div>
+        <p id="library-count" class="muted small" aria-live="polite"></p><div id="library-results" class="library-results"></div><button id="library-more" class="load-more" type="button">더 보기</button>
+      </div>
+      <footer class="footer"><span>530개의 가능성을, 하나의 시작으로.</span><span>팬 제작 도구 · 모든 생성 데이터는 창작 설정</span></footer>
+    </main>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite"></div>
+  <noscript>이 메이커를 실행하려면 브라우저의 JavaScript를 켜주세요.</noscript>
+  <script>/* RANKUPS_SCRIPT */</script>
+  <script>/* ORIGINAL_ENVIRONMENTS_SCRIPT */</script>
+  <script>/* ENVIRONMENTS_SCRIPT */</script>
+  <script>/* ARSENAL_SCRIPT */</script>
+  <script>/* FAN_CONTENT_SCRIPT */</script>
+  <script>/* CATALOG_SCRIPT */</script>
+  <script>/* ENGINE_SCRIPT */</script>
+  <script>/* TRAINING_SCRIPT */</script>
+  <script>/* APP_SCRIPT */</script>
+</body>
+</html>

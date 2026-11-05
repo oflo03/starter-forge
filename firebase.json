@@ -1,0 +1,14 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": ["**/.*", "**/node_modules/**"],
+    "predeploy": ["node build.cjs", "node export-content.cjs", "node prepare-hosting.cjs"],
+    "headers": [
+      { "source": "/index.html", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+      { "source": "/", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+      { "source": "/NEW_CONTENT.md", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+      { "source": "/content-catalog.json", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+      { "source": "/content-catalog.csv", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('node:fs');
+const path=require('node:path');
+const publicDir=path.join(__dirname,'public');
+const files=['index.html','NEW_CONTENT.md','content-catalog.csv','content-catalog.json'];
+fs.mkdirSync(publicDir,{recursive:true});
+const unexpected=fs.readdirSync(publicDir).filter(file=>!files.includes(file));
+if(unexpected.length)throw new Error('Unexpected public files: '+unexpected.join(', '));
+for(const file of files)fs.copyFileSync(path.join(__dirname,file),path.join(publicDir,file));
+console.log('Hosting: '+files.join(', '));
